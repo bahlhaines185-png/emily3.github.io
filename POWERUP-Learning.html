@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POWERUP 幼儿英语学习</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        
+        /* Login Page */
+        .login-page { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .login-card { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center; max-width: 400px; width: 100%; }
+        .login-icon { width: 80px; height: 80px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+        .login-title { font-size: 28px; color: #333; margin-bottom: 10px; }
+        .login-subtitle { color: #666; margin-bottom: 30px; }
+        .input-group { margin-bottom: 20px; }
+        .input-group input { width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s; }
+        .input-group input:focus { outline: none; border-color: #667eea; }
+        .login-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; transition: transform 0.2s; }
+        .login-btn:hover { transform: translateY(-2px); }
+        .error-msg { color: #e74c3c; margin-top: 10px; font-size: 14px; }
+        .login-hint { color: #999; font-size: 12px; margin-top: 20px; }
+        
+        /* Main App */
+        .app { display: none; }
+        .header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { width: 45px; height: 45px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .logo-text h1 { font-size: 20px; color: #333; }
+        .logo-text p { font-size: 12px; color: #666; }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .score-badge { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 8px 15px; border-radius: 20px; font-weight: bold; }
+        .logout-btn { background: #f0f0f0; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; }
+        
+        /* Hero Section */
+        .hero { background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%); padding: 40px 20px; text-align: center; }
+        .hero h2 { font-size: 32px; color: #333; margin-bottom: 15px; }
+        .hero h2 span { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { color: #666; max-width: 600px; margin: 0 auto 25px; }
+        .features { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .feature-tag { background: white; padding: 8px 15px; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-size: 14px; }
+        
+        /* Units Grid */
+        .units-section { padding: 30px 20px; max-width: 1200px; margin: 0 auto; }
+        .section-title { color: white; font-size: 24px; margin-bottom: 10px; }
+        .section-subtitle { color: rgba(255,255,255,0.8); margin-bottom: 25px; }
+        .units-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .unit-card { background: white; border-radius: 15px; overflow: hidden; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
+        .unit-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
+        .unit-header { padding: 20px; color: white; }
+        .unit-header h3 { font-size: 22px; margin-bottom: 5px; }
+        .unit-header p { font-size: 14px; opacity: 0.9; }
+        .unit-image { height: 150px; overflow: hidden; }
+        .unit-image img { width: 100%; height: 100%; object-fit: cover; }
+        .unit-stats { display: flex; gap: 15px; padding: 15px 20px; color: #666; font-size: 14px; }
+        
+        /* Unit Detail */
+        .unit-detail { display: none; background: #f5f5f5; min-height: 100vh; }
+        .detail-header { padding: 15px 20px; color: white; display: flex; align-items: center; gap: 15px; }
+        .back-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px; }
+        .detail-title { flex: 1; text-align: center; }
+        .detail-title h2 { font-size: 22px; }
+        .detail-title p { font-size: 14px; opacity: 0.9; }
+        
+        /* Tabs */
+        .tabs { display: flex; background: white; overflow-x: auto; border-bottom: 1px solid #e0e0e0; }
+        .tab { padding: 15px 20px; border: none; background: none; cursor: pointer; white-space: nowrap; font-size: 14px; color: #666; border-bottom: 3px solid transparent; }
+        .tab.active { color: #667eea; border-bottom-color: #667eea; font-weight: bold; }
+        .tab-content { display: none; padding: 20px; max-width: 1000px; margin: 0 auto; }
+        .tab-content.active { display: block; }
+        
+        /* Vocabulary */
+        .vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+        .vocab-card { background: white; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.2s; text-align: center; }
+        .vocab-card:hover { transform: scale(1.05); }
+        .vocab-card img { width: 100%; height: 120px; object-fit: cover; }
+        .vocab-info { padding: 12px; }
+        .vocab-info h4 { font-size: 18px; color: #333; }
+        .vocab-info p { font-size: 14px; color: #666; }
+        
+        /* Sentences */
+        .sentence-list { display: flex; flex-direction: column; gap: 15px; }
+        .sentence-card { background: white; border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .sentence-text { flex: 1; }
+        .sentence-text p:first-child { font-size: 18px; color: #333; margin-bottom: 5px; }
+        .sentence-text p:last-child { font-size: 14px; color: #666; }
+        .sentence-btns { display: flex; gap: 10px; }
+        .icon-btn { width: 40px; height: 40px; border: 1px solid #e0e0e0; background: white; border-radius: 8px; cursor: pointer; font-size: 18px; }
+        .icon-btn:hover { background: #f0f0f0; }
+        .recording { background: #ffebee !important; }
+        .result-box { margin-top: 15px; padding: 12px; border-radius: 8px; display: flex; align-items: center; gap: 10px; }
+        .result-good { background: #e8f5e9; color: #2e7d32; }
+        .result-ok { background: #fff3e0; color: #ef6c00; }
+        .result-bad { background: #ffebee; color: #c62828; }
+        
+        /* Story */
+        .story-card { background: white; border-radius: 12px; overflow: hidden; }
+        .story-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #e0e0e0; }
+        .story-image { width: 100%; max-height: 300px; object-fit: cover; }
+        .story-text { padding: 20px; line-height: 1.8; }
+        .story-text p { margin-bottom: 15px; font-size: 16px; color: #333; }
+        
+        /* Practice */
+        .practice-intro { background: white; border-radius: 12px; padding: 40px; text-align: center; }
+        .practice-intro h3 { font-size: 24px; margin-bottom: 15px; }
+        .practice-intro p { color: #666; margin-bottom: 25px; }
+        .start-practice-btn { padding: 15px 40px; color: white; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; }
+        
+        .practice-game { display: none; background: white; border-radius: 12px; padding: 30px; }
+        .practice-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .practice-progress { height: 8px; background: #e0e0e0; border-radius: 4px; margin-bottom: 30px; overflow: hidden; }
+        .practice-progress-bar { height: 100%; border-radius: 4px; transition: width 0.3s; }
+        .practice-question { text-align: center; margin-bottom: 30px; }
+        .practice-question p { color: #666; margin-bottom: 15px; }
+        .play-word-btn { padding: 15px 30px; color: white; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; }
+        .options-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .option-btn { border: 2px solid #e0e0e0; border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.2s; background: white; padding: 0; }
+        .option-btn:hover { border-color: #667eea; }
+        .option-btn img { width: 100%; height: 150px; object-fit: cover; }
+        .option-btn.correct { border-color: #4caf50; box-shadow: 0 0 0 4px rgba(76,175,80,0.3); }
+        .option-btn.wrong { border-color: #f44336; box-shadow: 0 0 0 4px rgba(244,67,54,0.3); }
+        .option-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 60px; }
+        .feedback { text-align: center; margin-top: 25px; }
+        .feedback p:first-child { font-size: 20px; font-weight: bold; margin-bottom: 10px; }
+        .next-btn { padding: 12px 30px; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 15px; }
+        
+        .practice-result { display: none; text-align: center; padding: 40px; }
+        .practice-result h3 { font-size: 28px; margin-bottom: 15px; }
+        .score-display { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 30px; border-radius: 15px; margin: 25px 0; }
+        .score-display p:first-child { font-size: 14px; opacity: 0.9; }
+        .score-display p:last-child { font-size: 48px; font-weight: bold; }
+        .result-btns { display: flex; gap: 15px; justify-content: center; }
+        .result-btn { padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer; font-size: 16px; }
+        .result-btn.primary { color: white; }
+        .result-btn.secondary { background: #f0f0f0; color: #333; }
+        
+        /* Grammar */
+        .grammar-intro { background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); border-radius: 12px; padding: 25px; margin-bottom: 20px; }
+        .grammar-intro h3 { color: #1565c0; margin-bottom: 10px; }
+        .grammar-intro p { color: #424242; font-size: 14px; }
+        .grammar-list { display: flex; flex-direction: column; gap: 15px; }
+        .grammar-card { background: white; border-radius: 12px; padding: 20px; border-left: 4px solid #667eea; }
+        .grammar-header { display: flex; gap: 15px; margin-bottom: 15px; }
+        .grammar-num { width: 35px; height: 35px; background: #667eea; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
+        .grammar-header h4 { font-size: 18px; color: #333; }
+        .grammar-content { color: #666; margin-bottom: 15px; line-height: 1.6; }
+        .grammar-examples { background: #f5f5f5; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .grammar-examples p:first-child { font-size: 12px; color: #999; margin-bottom: 8px; }
+        .grammar-examples p { color: #333; margin-bottom: 5px; padding-left: 15px; position: relative; }
+        .grammar-examples p::before { content: "•"; position: absolute; left: 0; }
+        .grammar-tip { display: flex; gap: 10px; background: #fff8e1; padding: 12px; border-radius: 8px; }
+        .grammar-tip span { font-size: 18px; }
+        .grammar-tip p { color: #ef6c00; font-size: 14px; }
+        
+        .relative { position: relative; }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div class="login-page" id="loginPage">
+        <div class="login-card">
+            <div class="login-icon">📚</div>
+            <h1 class="login-title">POWERUP</h1>
+            <p class="login-subtitle">幼儿英语学习</p>
+            <form id="loginForm">
+                <div class="input-group">
+                    <input type="text" id="username" placeholder="用户名" value="">
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" placeholder="密码" value="">
+                </div>
+                <button type="submit" class="login-btn">登录学习</button>
+                <p class="error-msg" id="errorMsg"></p>
+            </form>
+            <p class="login-hint">提示: 用户名 pu0, 密码 emily</p>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app" id="app">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">📚</div>
+                <div class="logo-text">
+                    <h1>POWERUP</h1>
+                    <p>幼儿英语学习</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <span class="score-badge">🏆 <span id="totalScore">0</span> 积分</span>
+                <button class="logout-btn" onclick="logout()">退出</button>
+            </div>
+        </header>
+
+        <section class="hero">
+            <h2>让英语学习成为一场<span>激动人心的冒险</span></h2>
+            <p>点击任意单元开始学习，点读功能帮助你正确发音，跟读功能让你练习口语，练习游戏让你赚取积分！</p>
+            <div class="features">
+                <span class="feature-tag">⭐ 点读学习</span>
+                <span class="feature-tag">❤️ 跟读练习</span>
+                <span class="feature-tag">📖 中文翻译</span>
+                <span class="feature-tag">🏆 积分奖励</span>
+            </div>
+        </section>
+
+        <section class="units-section">
+            <h2 class="section-title">选择学习单元</h2>
+            <p class="section-subtitle">共 10 个单元，涵盖词汇、句型、歌曲和故事</p>
+            <div class="units-grid" id="unitsGrid"></div>
+        </section>
+    </div>
+
+    <!-- Unit Detail -->
+    <div class="unit-detail" id="unitDetail">
+        <header class="detail-header" id="detailHeader">
+            <button class="back-btn" onclick="backToHome()">←</button>
+            <div class="detail-title">
+                <h2 id="detailTitle"></h2>
+                <p id="detailSubtitle"></p>
+            </div>
+            <div style="width:40px"></div>
+        </header>
+
+        <div class="tabs" id="tabs"></div>
+
+        <div class="tab-content" id="vocabContent"></div>
+        <div class="tab-content" id="sentenceContent"></div>
+        <div class="tab-content" id="songContent"></div>
+        <div class="tab-content" id="storyContent"></div>
+        <div class="tab-content" id="practiceContent"></div>
+        <div class="tab-content" id="grammarContent"></div>
+    </div>
+
+    <script>
+// ============================================
+// POWERUP English Learning - Complete Data
+// ============================================
+
+const unitsData = [
+    {
+        id: "u0",
+        title: "Unit Hello",
+        subtitle: "你好",
+        color: "#FBD000",
+        image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400",
+        storyImage: "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800",
+        vocabulary: [
+            { word: "bird", chinese: "鸟", image: "https://images.unsplash.com/photo-1452570053594-1b985d6ea890?w=200" },
+            { word: "boat", chinese: "船", image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=200" },
+            { word: "book", chinese: "书", image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=200" },
+            { word: "bus", chinese: "公共汽车", image: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=200" },
+            { word: "cat", chinese: "猫", image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200" },
+            { word: "one", chinese: "一", image: "https://images.unsplash.com/photo-1502570149819-b2260483d302?w=200" },
+            { word: "two", chinese: "二", image: "https://images.unsplash.com/photo-1502570149819-b2260483d302?w=200" },
+            { word: "three", chinese: "三", image: "https://images.unsplash.com/photo-1502570149819-b2260483d302?w=200" },
+            { word: "blue", chinese: "蓝色", image: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=200" },
+            { word: "red", chinese: "红色", image: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=200" },
+        ],
+        sentences: [
+            { english: "Hello! I'm Cameron!", chinese: "你好！我是卡梅隆！" },
+            { english: "Hello! What's your name?", chinese: "你好！你叫什么名字？" },
+            { english: "This is the Friendly family.", chinese: "这是弗莱德利一家。" },
+            { english: "This is Mr. Friendly.", chinese: "这是弗莱德利先生。" },
+            { english: "This is Mrs. Friendly.", chinese: "这是弗莱德利太太。" },
+            { english: "This is Jim. This is Jenny.", chinese: "这是吉姆。这是珍妮。" },
+            { english: "What's this?", chinese: "这是什么？" },
+            { english: "This is a bus.", chinese: "这是一辆公共汽车。" },
+            { english: "It's a bird.", chinese: "它是一只鸟。" },
+            { english: "Is this a boat?", chinese: "这是一艘船吗？" },
+            { english: "Yes, it is.", chinese: "是的，它是。" },
+            { english: "Is this a cat?", chinese: "这是一只猫吗？" },
+            { english: "No, it isn't. It's a book.", chinese: "不，不是。这是一本书。" },
+            { english: "What number is this?", chinese: "这是数字几？" },
+            { english: "It's one.", chinese: "是一。" },
+            { english: "It's two.", chinese: "是二。" },
+            { english: "It's three.", chinese: "是三。" },
+            { english: "How many cats do you see?", chinese: "你看到几只猫？" },
+            { english: "I see one cat.", chinese: "我看到一只猫。" },
+            { english: "I see two cats.", chinese: "我看到两只猫。" },
+            { english: "I see three birds.", chinese: "我看到三只鸟。" },
+            { english: "What colour is this?", chinese: "这是什么颜色？" },
+            { english: "It's blue.", chinese: "是蓝色。" },
+            { english: "It's red.", chinese: "是红色。" },
+            { english: "It's yellow.", chinese: "是黄色。" },
+            { english: "Is this blue?", chinese: "这是蓝色吗？" },
+            { english: "Yes, it is. It's blue.", chinese: "是的，它是蓝色。" },
+            { english: "Is this green?", chinese: "这是绿色吗？" },
+            { english: "No, it isn't. It's red.", chinese: "不，不是。它是红色。" },
+            { english: "Goodbye! See you!", chinese: "再见！回头见！" },
+        ],
+        song: "A bus, a bird, a boat, a book. A cat, a cat, a cat. A bus, a bird, a boat, a book. A cat, a cat, a cat.",
+        story: "This is the Friendly family. Mr. Friendly, Mrs. Friendly, Jim, Jenny and their pet cat Cameron. They are a happy family. Hello! I'm Cameron! Welcome to our family!",
+        grammar: [
+            { title: "自我介绍", content: "用 'I'm + 名字' 来介绍自己。这是最基本的自我表达方式。", examples: ["I'm Cameron.", "I'm Jenny."], tip: "提醒孩子注意 'I'm' 的发音，是 'I am' 的缩写形式。" },
+            { title: "介绍他人", content: "用 'This is + 人名' 来介绍身边的人。", examples: ["This is Mr. Friendly.", "This is Jim."], tip: "可以让孩子练习介绍家人：This is my dad/mum." },
+            { title: "询问物品", content: "用 'What's this?' 询问'这是什么？'，回答用 'This is...' 或 'It's...'", examples: ["What's this? It's a bus."], tip: "注意 'a' 的用法，表示'一个/一只/一辆'。" },
+            { title: "询问数量", content: "用 'How many...?' 询问数量，回答用 'I see + 数字 + 物品'", examples: ["How many cats do you see? I see two cats."], tip: "注意名词复数形式，cat → cats。" },
+            { title: "询问颜色", content: "用 'What colour is this?' 询问颜色，回答用 'It's + 颜色'", examples: ["What colour is this? It's blue."], tip: "颜色单词前面不需要加 'a'。" }
+        ]
+    },
+    {
+        id: "u1",
+        title: "Unit 1",
+        subtitle: "Friends and family 朋友和家人",
+        color: "#E5462C",
+        image: "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=400",
+        storyImage: "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800",
+        vocabulary: [
+            { word: "dad", chinese: "爸爸", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200" },
+            { word: "mum", chinese: "妈妈", image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200" },
+            { word: "brother", chinese: "哥哥/弟弟", image: "https://images.unsplash.com/photo-1485546246426-74dc88dec4d9?w=200" },
+            { word: "sister", chinese: "姐姐/妹妹", image: "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=200" },
+            { word: "family", chinese: "家庭", image: "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=200" },
+            { word: "man", chinese: "男人", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200" },
+            { word: "woman", chinese: "女人", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200" },
+            { word: "boy", chinese: "男孩", image: "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?w=200" },
+            { word: "girl", chinese: "女孩", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200" },
+            { word: "grandpa", chinese: "爷爷/外公", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200" },
+        ],
+        sentences: [
+            { english: "What's your name?", chinese: "你叫什么名字？" },
+            { english: "My name's Matt.", chinese: "我叫马特。" },
+            { english: "My name's Emma.", chinese: "我叫艾玛。" },
+            { english: "How old are you?", chinese: "你几岁了？" },
+            { english: "I'm four.", chinese: "我四岁了。" },
+            { english: "I'm five.", chinese: "我五岁了。" },
+            { english: "I'm six.", chinese: "我六岁了。" },
+            { english: "Who's this?", chinese: "这是谁？" },
+            { english: "This is Jim.", chinese: "这是吉姆。" },
+            { english: "This is my dad.", chinese: "这是我爸爸。" },
+            { english: "This is my mum.", chinese: "这是我妈妈。" },
+            { english: "How old is Jim?", chinese: "吉姆几岁了？" },
+            { english: "He's five.", chinese: "他五岁了。" },
+            { english: "How old is your sister?", chinese: "你姐姐几岁了？" },
+            { english: "She's six.", chinese: "她六岁了。" },
+            { english: "Is this woman your mum?", chinese: "这位女士是你妈妈吗？" },
+            { english: "Yes, she is.", chinese: "是的，她是。" },
+            { english: "Is this man your dad?", chinese: "这位男士是你爸爸吗？" },
+            { english: "Yes, he is.", chinese: "是的，他是。" },
+            { english: "Is this girl your sister?", chinese: "这个女孩是你姐姐吗？" },
+            { english: "No, she isn't.", chinese: "不，她不是。" },
+            { english: "Is this boy your brother?", chinese: "这个男孩是你哥哥吗？" },
+            { english: "No, he isn't.", chinese: "不，他不是。" },
+            { english: "Who's that man?", chinese: "那位男士是谁？" },
+            { english: "He's my grandpa.", chinese: "他是我爷爷。" },
+            { english: "Who's that woman?", chinese: "那位女士是谁？" },
+            { english: "She's my grandma.", chinese: "她是我奶奶。" },
+            { english: "This is my family.", chinese: "这是我的家人。" },
+            { english: "I love my family.", chinese: "我爱我的家人。" },
+            { english: "Nice to meet you!", chinese: "很高兴认识你！" },
+        ],
+        song: "Family, family. This is our family. This is our mum. Mum, mum, mum. This is our pet, Cameron. This is our dad. Dad, dad. Jenny's my sister. Sister, sister. Jim's my brother. Brother.",
+        story: "This is my family. My dad, my mum, my brother Jim and my sister Jenny. We love our pet cat Cameron. We are a happy family. Family, family. This is our family!",
+        grammar: [
+            { title: "询问姓名", content: "用 'What's your name?' 询问对方名字，回答用 'My name's + 名字'", examples: ["What's your name? My name's Matt."], tip: "'name's' 是 'name is' 的缩写。" },
+            { title: "询问年龄", content: "用 'How old are you?' 询问年龄，回答用 'I'm + 数字'", examples: ["How old are you? I'm four."], tip: "可以让孩子用手指表示年龄来配合回答。" },
+            { title: "询问他人身份", content: "用 'Who's this?' 询问'这是谁？'，回答用 'This is + 名字'", examples: ["Who's this? This is Jim."], tip: "'Who's' 是 'Who is' 的缩写。" },
+            { title: "询问第三人称年龄", content: "用 'How old is + 人名?' 询问他人年龄，回答用 'He's/She's + 数字'", examples: ["How old is Jim? He's five.", "How old is Jenny? She's six."], tip: "男性用 'He'，女性用 'She'。" },
+            { title: "一般疑问句", content: "用 'Is this + 名词?' 来确认身份，肯定回答 'Yes, he/she is.'，否定回答 'No, he/she isn't.'", examples: ["Is this woman your mum? Yes, she is.", "Is this boy your brother? No, he isn't."], tip: "'isn't' 是 'is not' 的缩写，表示否定。" }
+        ]
+    },
+    {
+        id: "u2",
+        title: "Unit 2",
+        subtitle: "At school 在学校",
+        color: "#7EBA28",
+        image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400",
+        storyImage: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800",
+        vocabulary: [
+            { word: "classroom", chinese: "教室", image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=200" },
+            { word: "playground", chinese: "操场", image: "https://images.unsplash.com/photo-1566454544259-f4b94c3d758c?w=200" },
+            { word: "bag", chinese: "书包", image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=200" },
+            { word: "pencil", chinese: "铅笔", image: "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=200" },
+            { word: "teacher", chinese: "老师", image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=200" },
+            { word: "bookcase", chinese: "书架", image: "https://images.unsplash.com/photo-1591951425328-48c1fe7179cd?w=200" },
+            { word: "chair", chinese: "椅子", image: "https://images.unsplash.com/photo-1592078615290-033ee584e267?w=200" },
+            { word: "board", chinese: "黑板", image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=200" },
+            { word: "table", chinese: "桌子", image: "https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?w=200" },
+            { word: "box", chinese: "盒子", image: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=200" },
+        ],
+        sentences: [
+            { english: "This is our new school.", chinese: "这是我们的新学校。" },
+            { english: "This is the playground.", chinese: "这是操场。" },
+            { english: "This is your classroom.", chinese: "这是你的教室。" },
+            { english: "Who's that woman?", chinese: "那位女士是谁？" },
+            { english: "She's your teacher.", chinese: "她是你的老师。" },
+            { english: "Here you are!", chinese: "给你！" },
+            { english: "Thank you!", chinese: "谢谢你！" },
+            { english: "What are they?", chinese: "它们是什么？" },
+            { english: "They are bags.", chinese: "它们是书包。" },
+            { english: "They are books.", chinese: "它们是书。" },
+            { english: "Are they books?", chinese: "它们是书吗？" },
+            { english: "Yes, they are.", chinese: "是的，它们是。" },
+            { english: "Are they pencils?", chinese: "它们是铅笔吗？" },
+            { english: "No, they aren't.", chinese: "不，它们不是。" },
+            { english: "Where's the cat?", chinese: "猫在哪里？" },
+            { english: "It's on the box.", chinese: "它在盒子上。" },
+            { english: "It's in the box.", chinese: "它在盒子里。" },
+            { english: "It's under the box.", chinese: "它在盒子下面。" },
+            { english: "Where's the book?", chinese: "书在哪里？" },
+            { english: "It's on the table.", chinese: "它在桌子上。" },
+            { english: "Where's the pencil?", chinese: "铅笔在哪里？" },
+            { english: "It's in the bag.", chinese: "它在书包里。" },
+            { english: "Is the cat on the chair?", chinese: "猫在椅子上吗？" },
+            { english: "Yes, it is.", chinese: "是的，它在。" },
+            { english: "Is the book under the table?", chinese: "书在桌子下面吗？" },
+            { english: "No, it isn't.", chinese: "不，它不在。" },
+            { english: "Look at the blackboard.", chinese: "看黑板。" },
+            { english: "Open your books.", chinese: "打开你们的书。" },
+            { english: "Close your books.", chinese: "合上你们的书。" },
+            { english: "Let's go to the playground!", chinese: "我们去操场吧！" },
+        ],
+        song: "This is our school, this is our school. Classroom, playground, we love our school. Teacher, friends, we love our school. This is our school, hooray!",
+        story: "The bird and the cat: Look, Tom. It's a yellow bird. It's Hugo, the school cat. Where's the bird? It's on the teacher's bag. Oh, no! Now the bag's on the floor. And the bird's on the crayon box.",
+        grammar: [
+            { title: "复数物品询问", content: "用 'What are they?' 询问多个物品是什么，回答用 'They are + 复数名词'", examples: ["What are they? They are bags.", "What are they? They are books."], tip: "注意名词要变成复数形式，bag → bags，book → books。" },
+            { title: "复数一般疑问句", content: "用 'Are they + 复数名词?' 来确认，回答 'Yes, they are.' 或 'No, they aren't.'", examples: ["Are they books? Yes, they are.", "Are they bags? No, they aren't."], tip: "复数物品的问答都用 'they'。" },
+            { title: "询问位置", content: "用 'Where's + 物品?' 询问位置，回答用 'It's + 方位词 + 地点'", examples: ["Where's the cat? It's on the box.", "Where's the book? It's in the bag."], tip: "'Where's' 是 'Where is' 的缩写。" },
+            { title: "方位介词", content: "on 表示'在...上面'，in 表示'在...里面'，under 表示'在...下面'", examples: ["on the box（在盒子上）", "in the box（在盒子里）", "under the table（在桌子下）"], tip: "可以通过实物演示帮助孩子理解这三个方位词的区别。" },
+            { title: "递东西用语", content: "'Here you are!' 是递给别人东西时说的话，意思是'给你！'", examples: ["Here you are!（给你！）"], tip: "这是日常用语，让孩子养成递东西时说这句话的习惯。" }
+        ]
+    },
+    {
+        id: "u3",
+        title: "Unit 3",
+        subtitle: "Food shopping 食物购物",
+        color: "#00B5E8",
+        image: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=400",
+        storyImage: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800",
+        vocabulary: [
+            { word: "apple", chinese: "苹果", image: "https://images.unsplash.com/photo-1584306670957-acf935f5033c?w=200" },
+            { word: "banana", chinese: "香蕉", image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=200" },
+            { word: "grapes", chinese: "葡萄", image: "https://images.unsplash.com/photo-1537640538965-1756cd58090e?w=200" },
+            { word: "orange", chinese: "橙子", image: "https://images.unsplash.com/photo-1582979512210-99b6a53386f9?w=200" },
+            { word: "watermelon", chinese: "西瓜", image: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=200" },
+            { word: "beans", chinese: "豆子", image: "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?w=200" },
+            { word: "burger", chinese: "汉堡", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200" },
+            { word: "carrot", chinese: "胡萝卜", image: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=200" },
+            { word: "egg", chinese: "鸡蛋", image: "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=200" },
+            { word: "rice", chinese: "米饭", image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200" },
+        ],
+        sentences: [
+            { english: "What are they?", chinese: "它们是什么？" },
+            { english: "They're apples.", chinese: "它们是苹果。" },
+            { english: "They're bananas.", chinese: "它们是香蕉。" },
+            { english: "What colour are they?", chinese: "它们是什么颜色？" },
+            { english: "They're green.", chinese: "它们是绿色的。" },
+            { english: "They're red.", chinese: "它们是红色的。" },
+            { english: "They're yellow.", chinese: "它们是黄色的。" },
+            { english: "Are they green apples?", chinese: "它们是青苹果吗？" },
+            { english: "No, they aren't. They're red apples.", chinese: "不，不是。它们是红苹果。" },
+            { english: "Are they oranges?", chinese: "它们是橙子吗？" },
+            { english: "Yes, they are.", chinese: "是的，它们是。" },
+            { english: "How many red apples are there?", chinese: "有多少个红苹果？" },
+            { english: "There are nine red apples.", chinese: "有九个红苹果。" },
+            { english: "How many bananas are there?", chinese: "有多少根香蕉？" },
+            { english: "There are six bananas.", chinese: "有六根香蕉。" },
+            { english: "Where are the green grapes?", chinese: "绿葡萄在哪里？" },
+            { english: "They're under the oranges.", chinese: "它们在橙子下面。" },
+            { english: "There's a blue box on the chair.", chinese: "椅子上有一个蓝色的盒子。" },
+            { english: "There's an apple on the table.", chinese: "桌子上有一个苹果。" },
+            { english: "How many beans are there?", chinese: "有多少豆子？" },
+            { english: "There are a lot!", chinese: "有很多！" },
+            { english: "I like apples.", chinese: "我喜欢苹果。" },
+            { english: "I don't like carrots.", chinese: "我不喜欢胡萝卜。" },
+            { english: "Do you like bananas?", chinese: "你喜欢香蕉吗？" },
+            { english: "Yes, I do.", chinese: "是的，我喜欢。" },
+            { english: "Do you like eggs?", chinese: "你喜欢鸡蛋吗？" },
+            { english: "No, I don't.", chinese: "不，我不喜欢。" },
+            { english: "Yummy! Delicious!", chinese: "好吃！美味！" },
+            { english: "I'm hungry.", chinese: "我饿了。" },
+            { english: "I'm thirsty.", chinese: "我渴了。" },
+        ],
+        song: "Apples, bananas, grapes so sweet. Oranges and watermelon, what a treat! Yummy fruits are good to eat. Healthy food can't be beat!",
+        story: "In Mr Brown's garden: It's time for breakfast. I'm very hungry. Wow! There are a lot of carrots in Mr Brown's garden. There are a lot of apples too! Five red apples. Oh, no! It's Mr Brown, and Mr Brown is very angry!",
+        grammar: [
+            { title: "They're 的用法", content: "'They're' 是 'They are' 的缩写，表示'它们是'", examples: ["They're apples.", "They're green."], tip: "注意 'They're' 的发音，要连读。" },
+            { title: "询问物品颜色", content: "用 'What colour are they?' 询问多个物品的颜色", examples: ["What colour are they? They're red."], tip: "单数用 'is'，复数用 'are'。" },
+            { title: "There be 句型（单数）", content: "用 'There's + a/an + 物品 + 地点' 表示'某地有某物'（单数）", examples: ["There's a blue box on the chair.", "There's an apple on the table."], tip: "'an' 用于元音音素开头的单词前，如 apple, orange, egg。" },
+            { title: "There be 句型（复数）", content: "用 'There are + 数字 + 复数物品' 表示'有多个物品'", examples: ["There are nine red apples.", "There are six bananas."], tip: "复数物品要用 'There are'，不能用 'There's'。" },
+            { title: "How many 询问数量", content: "用 'How many + 复数物品 + are there?' 询问数量", examples: ["How many red apples are there?", "How many beans are there?"], tip: "'How many' 后面必须跟复数名词。" }
+        ]
+    },
+    {
+        id: "u4",
+        title: "Unit 4",
+        subtitle: "At home 在家里",
+        color: "#FBD000",
+        image: "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=400",
+        storyImage: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=800",
+        vocabulary: [
+            { word: "lamp", chinese: "台灯", image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=200" },
+            { word: "clock", chinese: "时钟", image: "https://images.unsplash.com/photo-1563861826100-9cb868fdbe1c?w=200" },
+            { word: "mirror", chinese: "镜子", image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=200" },
+            { word: "bed", chinese: "床", image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=200" },
+            { word: "computer", chinese: "电脑", image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=200" },
+            { word: "living room", chinese: "客厅", image: "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=200" },
+            { word: "bedroom", chinese: "卧室", image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=200" },
+            { word: "kitchen", chinese: "厨房", image: "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=200" },
+            { word: "bathroom", chinese: "浴室", image: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=200" },
+            { word: "garden", chinese: "花园", image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=200" },
+        ],
+        sentences: [
+            { english: "This is my room.", chinese: "这是我的房间。" },
+            { english: "This is the living room.", chinese: "这是客厅。" },
+            { english: "This is the kitchen.", chinese: "这是厨房。" },
+            { english: "Is that a crayon?", chinese: "那是蜡笔吗？" },
+            { english: "Oh, no! It's a lamp!", chinese: "哦，不！这是一盏台灯！" },
+            { english: "Your clock's nice too.", chinese: "你的时钟也很好看。" },
+            { english: "Thank you!", chinese: "谢谢你！" },
+            { english: "Have you got a computer?", chinese: "你有电脑吗？" },
+            { english: "Yes, I have.", chinese: "是的，我有。" },
+            { english: "No, I haven't.", chinese: "不，我没有。" },
+            { english: "Have you got a mirror?", chinese: "你有镜子吗？" },
+            { english: "Yes, I have. It's in my bedroom.", chinese: "是的，我有。它在我的卧室里。" },
+            { english: "I've got a lot of books.", chinese: "我有很多书。" },
+            { english: "I've got a new bed.", chinese: "我有一张新床。" },
+            { english: "How many books have you got?", chinese: "你有多少本书？" },
+            { english: "I've got ten books.", chinese: "我有十本书。" },
+            { english: "Where's Jenny?", chinese: "珍妮在哪里？" },
+            { english: "She's in Anna's bedroom.", chinese: "她在安娜的卧室里。" },
+            { english: "Where's the cat?", chinese: "猫在哪里？" },
+            { english: "It's in the garden.", chinese: "它在花园里。" },
+            { english: "Have we got any eggs?", chinese: "我们有鸡蛋吗？" },
+            { english: "Yes, we have.", chinese: "是的，我们有。" },
+            { english: "Have we got any bananas?", chinese: "我们有香蕉吗？" },
+            { english: "We haven't got any bananas.", chinese: "我们没有香蕉。" },
+            { english: "We haven't got any apples.", chinese: "我们没有苹果。" },
+            { english: "This is my house.", chinese: "这是我的房子。" },
+            { english: "I love my home.", chinese: "我爱我的家。" },
+            { english: "Welcome to my home!", chinese: "欢迎来我家！" },
+            { english: "Make yourself at home!", chinese: "别客气，像在自己家一样！" },
+            { english: "Good night! Sleep well!", chinese: "晚安！睡个好觉！" },
+        ],
+        song: "This is my home, sweet home. Living room, bedroom, kitchen too. Bathroom, garden, nice and clean. I love my home, yes I do!",
+        story: "The three wishes: I've got a fish. Please put me back in the water. Thank you. You are kind. Now you've got three wishes. Number 1. We want a big house with a lot of rooms. Number 2. We want a garden with a lot of food. Number 3. We want lamps, clocks and mirrors in our house.",
+        grammar: [
+            { title: "Have got 句型（询问）", content: "用 'Have you got + 物品?' 询问'你有...吗？'", examples: ["Have you got a computer?", "Have we got any eggs?"], tip: "'Have got' 在英式英语中常用，相当于美式英语的 'Do you have'。" },
+            { title: "Have got 句型（回答）", content: "肯定回答 'Yes, I have.'，否定回答 'No, I haven't.'", examples: ["Have you got a computer? Yes, I have.", "Have you got a bag? No, I haven't."], tip: "'haven't' 是 'have not' 的缩写。" },
+            { title: "I've got 表示拥有", content: "用 'I've got + 物品' 表示'我有...'", examples: ["I've got a lot of books.", "I've got a new toy."], tip: "'I've' 是 'I have' 的缩写。" },
+            { title: "How many...have you got?", content: "用 'How many + 复数物品 + have you got?' 询问拥有数量", examples: ["How many books have you got?", "How many toys have you got?"], tip: "这是询问对方拥有多少某物的常用句型。" },
+            { title: "any 的用法", content: "在疑问句和否定句中，用 'any' 代替 'a/an/some'", examples: ["Have we got any eggs?（疑问句）", "We haven't got any bananas.（否定句）"], tip: "'any' 常用于疑问句和否定句中，表示'一些/任何'。" }
+        ]
+    },
+    {
+        id: "u5",
+        title: "Unit 5",
+        subtitle: "My body 我的身体",
+        color: "#E5462C",
+        image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400",
+        storyImage: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800",
+        vocabulary: [
+            { word: "ears", chinese: "耳朵", image: "https://images.unsplash.com/photo-1559757175-5700dde675bc?w=200" },
+            { word: "eyes", chinese: "眼睛", image: "https://images.unsplash.com/photo-1494869042583-f6c911f04b4c?w=200" },
+            { word: "hair", chinese: "头发", image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=200" },
+            { word: "mouth", chinese: "嘴巴", image: "https://images.unsplash.com/photo-1546548970-71785318a17b?w=200" },
+            { word: "legs", chinese: "腿", image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=200" },
+            { word: "big", chinese: "大的", image: "https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=200" },
+            { word: "small", chinese: "小的", image: "https://images.unsplash.com/photo-1425082661705-1834bfd09dca?w=200" },
+            { word: "long", chinese: "长的", image: "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=200" },
+            { word: "short", chinese: "短的", image: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=200" },
+            { word: "beautiful", chinese: "美丽的", image: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=200" },
+        ],
+        sentences: [
+            { english: "I've got two eyes.", chinese: "我有两只眼睛。" },
+            { english: "I've got two ears.", chinese: "我有两只耳朵。" },
+            { english: "I've got two legs.", chinese: "我有两条腿。" },
+            { english: "You've got one yellow eye.", chinese: "你有一只黄色的眼睛。" },
+            { english: "You've got three legs.", chinese: "你有三条腿。" },
+            { english: "I've got brown hair.", chinese: "我有棕色的头发。" },
+            { english: "You've got blue hair.", chinese: "你有蓝色的头发。" },
+            { english: "Has he got brown eyes?", chinese: "他有棕色的眼睛吗？" },
+            { english: "Yes, he's got brown eyes.", chinese: "是的，他有棕色的眼睛。" },
+            { english: "Has she got green eyes?", chinese: "她有绿色的眼睛吗？" },
+            { english: "No, she hasn't. She's got blue eyes.", chinese: "不，她没有。她有蓝色的眼睛。" },
+            { english: "She's got big eyes.", chinese: "她有大眼睛。" },
+            { english: "He's got a small mouth.", chinese: "他有小嘴巴。" },
+            { english: "She's got long legs.", chinese: "她有长腿。" },
+            { english: "He's got short hair.", chinese: "他有短发。" },
+            { english: "Touch your eyes.", chinese: "摸摸你的眼睛。" },
+            { english: "Touch your ears.", chinese: "摸摸你的耳朵。" },
+            { english: "Open your mouth.", chinese: "张开你的嘴巴。" },
+            { english: "Close your eyes.", chinese: "闭上眼睛。" },
+            { english: "Shake your legs.", chinese: "摇摇你的腿。" },
+            { english: "Look at me!", chinese: "看着我！" },
+            { english: "Look at my eyes.", chinese: "看着我的眼睛。" },
+            { english: "You're beautiful!", chinese: "你真漂亮！" },
+            { english: "How beautiful!", chinese: "多美啊！" },
+            { english: "Point to your nose.", chinese: "指着你的鼻子。" },
+            { english: "Point to your mouth.", chinese: "指着你的嘴巴。" },
+            { english: "Wave your hands.", chinese: "挥挥你的手。" },
+            { english: "Clap your hands.", chinese: "拍拍你的手。" },
+            { english: "Stamp your feet.", chinese: "跺跺你的脚。" },
+            { english: "You're so cute!", chinese: "你真可爱！" },
+        ],
+        song: "Head, shoulders, knees and toes. Knees and toes. Head, shoulders, knees and toes. Eyes, ears, mouth and nose. Head, shoulders, knees and toes. Knees and toes!",
+        story: "My best friend: It's time for art. Today, please paint a picture of your best friend. What's your best friend's name? It's Lucy. She's seven. Has Lucy got long hair? Yes, she has. She's got a lot of long, brown hair. Lucy is my pet dog - and she's my best friend!",
+        grammar: [
+            { title: "I've got 描述身体部位", content: "用 'I've got + 数量 + 身体部位' 描述自己有什么", examples: ["I've got two eyes.", "I've got two legs.", "I've got brown hair."], tip: "注意 'hair' 是不可数名词，前面不加 'a'。" },
+            { title: "You've got 描述对方", content: "用 'You've got + 物品/特征' 描述对方有什么", examples: ["You've got one yellow eye.", "You've got blue hair."], tip: "'You've' 是 'You have' 的缩写。" },
+            { title: "Has he/she got?（询问）", content: "用 'Has he/she got + 物品?' 询问第三人称是否有某物", examples: ["Has he got brown eyes?", "Has she got green eyes?"], tip: "第三人称单数（he/she）用 'Has'，不是 'Have'。" },
+            { title: "Has he/she got?（回答）", content: "肯定回答 'Yes, he/she has got...'，否定回答 'No, he/she hasn't.'", examples: ["Has he got brown eyes? Yes, he's got brown eyes."], tip: "回答时可以重复问题中的内容来确认。" },
+            { title: "形容词描述", content: "用 'big, small, long, short, beautiful' 等形容词描述特征", examples: ["She's got big eyes.", "He's got a small mouth.", "She's got long legs."], tip: "形容词放在名词前面，如 'big eyes'（大眼睛）。" }
+        ]
+    },
+    {
+        id: "u6",
+        title: "Unit 6",
+        subtitle: "My toys 我的玩具",
+        color: "#7EBA28",
+        image: "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=400",
+        storyImage: "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=800",
+        vocabulary: [
+            { word: "board game", chinese: "桌游", image: "https://images.unsplash.com/photo-1632501641765-e568d28b0015?w=200" },
+            { word: "camera", chinese: "相机", image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=200" },
+            { word: "doll", chinese: "洋娃娃", image: "https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=200" },
+            { word: "teddy", chinese: "泰迪熊", image: "https://images.unsplash.com/photo-1559454403-b8fb87521bc7?w=200" },
+            { word: "train", chinese: "火车", image: "https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=200" },
+            { word: "ball", chinese: "球", image: "https://images.unsplash.com/photo-1512099053734-e8337b3798dd?w=200" },
+            { word: "balloon", chinese: "气球", image: "https://images.unsplash.com/photo-1525268323446-0505b6fe7778?w=200" },
+            { word: "bike", chinese: "自行车", image: "https://images.unsplash.com/photo-1485965120184-e224f7a1d7f0?w=200" },
+            { word: "car", chinese: "汽车", image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=200" },
+            { word: "plane", chinese: "飞机", image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=200" },
+        ],
+        sentences: [
+            { english: "I've got a board game.", chinese: "我有一个桌游。" },
+            { english: "I've got a new train.", chinese: "我有一辆新火车。" },
+            { english: "It's long and it's got four boxes.", chinese: "它很长，有四个车厢。" },
+            { english: "My camera is my favourite toy.", chinese: "相机是我最喜欢的玩具。" },
+            { english: "Let's play.", chinese: "我们来玩吧。" },
+            { english: "Let's play with the toy farm.", chinese: "我们来玩玩具农场吧。" },
+            { english: "Do you like my new train?", chinese: "你喜欢我的新火车吗？" },
+            { english: "Yes, it's nice!", chinese: "是的，很好看！" },
+            { english: "I like trains.", chinese: "我喜欢火车。" },
+            { english: "I like dolls.", chinese: "我喜欢洋娃娃。" },
+            { english: "I love yellow.", chinese: "我喜欢黄色。" },
+            { english: "It's my favourite colour.", chinese: "这是我最喜欢的颜色。" },
+            { english: "I don't like beans.", chinese: "我不喜欢豆子。" },
+            { english: "I don't like carrots.", chinese: "我不喜欢胡萝卜。" },
+            { english: "What's your favourite fruit?", chinese: "你最喜欢的水果是什么？" },
+            { english: "Watermelon's my favourite fruit.", chinese: "西瓜是我最喜欢的水果。" },
+            { english: "What's your favourite toy?", chinese: "你最喜欢的玩具是什么？" },
+            { english: "My teddy is my favourite toy.", chinese: "我的泰迪熊是我最喜欢的玩具。" },
+            { english: "Do you want to play?", chinese: "你想玩吗？" },
+            { english: "Yes, I do!", chinese: "是的，我想！" },
+            { english: "Can I play with your car?", chinese: "我可以玩你的汽车吗？" },
+            { english: "Sure! Here you are.", chinese: "当然可以！给你。" },
+            { english: "Thank you!", chinese: "谢谢你！" },
+            { english: "This is fun!", chinese: "这很有趣！" },
+            { english: "I like playing with you.", chinese: "我喜欢和你一起玩。" },
+            { english: "Me too!", chinese: "我也是！" },
+            { english: "Share your toys.", chinese: "分享你的玩具。" },
+            { english: "Be nice to your friends.", chinese: "对你的朋友友好。" },
+            { english: "Take turns.", chinese: "轮流玩。" },
+            { english: "Clean up your toys.", chinese: "收拾你的玩具。" },
+        ],
+        song: "Toys, toys, I love my toys. Trains and cars make lots of noise. Dolls and teddies, soft and sweet. Board games are fun, what a treat!",
+        story: "My favourite toy: It's Mandy's birthday today. She's six. Mandy's got a new bike from Mummy and Daddy! Mandy's got a new doll from Grandma. Mandy's got a board game from Freddy. Teddy's old, and he's only got one ear, but he's my favourite toy. I LOVE Teddy!",
+        grammar: [
+            { title: "Let's 提建议", content: "用 'Let's + 动词' 表示'让我们做...吧'", examples: ["Let's play.", "Let's go."], tip: "'Let's' 是 'Let us' 的缩写，用于提出建议。" },
+            { title: "Do you like...?（询问喜好）", content: "用 'Do you like + 物品?' 询问对方是否喜欢某物", examples: ["Do you like my new train?", "Do you like apples?"], tip: "这是询问喜好的常用句型。" },
+            { title: "表达喜好", content: "用 'I like + 物品' 表示喜欢，用 'I don't like + 物品' 表示不喜欢", examples: ["I like trains.", "I love yellow.", "I don't like beans."], tip: "'love' 比 'like' 程度更深，表示'非常喜欢'。" },
+            { title: "favourite 的用法", content: "用 'favourite' 表示'最喜欢的'，前面通常加 'my/your/his/her'", examples: ["My camera is my favourite toy.", "It's my favourite colour.", "Watermelon's my favourite fruit."], tip: "'favourite' 是形容词，表示'最喜欢的'，只能有一个。" },
+            { title: "询问最喜欢的物品", content: "用 'What's your favourite + 物品类别?' 询问对方最喜欢什么", examples: ["What's your favourite fruit?", "What's your favourite toy?", "What's your favourite colour?"], tip: "这是了解孩子喜好的好问题，可以多问。" }
+        ]
+    },
+    {
+        id: "u7",
+        title: "Unit 7",
+        subtitle: "Free time 空闲时间",
+        color: "#00B5E8",
+        image: "https://images.unsplash.com/photo-1461896836934- voices?w=400",
+        storyImage: "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=800",
+        vocabulary: [
+            { word: "climb", chinese: "攀爬", image: "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=200" },
+            { word: "walk", chinese: "走路", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200" },
+            { word: "jump", chinese: "跳跃", image: "https://images.unsplash.com/photo-1461896836934- voices?w=200" },
+            { word: "run", chinese: "跑步", image: "https://images.unsplash.com/photo-1552674605-469523170273?w=200" },
+            { word: "swim", chinese: "游泳", image: "https://images.unsplash.com/photo-1530549387789-4c1017266635?w=200" },
+            { word: "catch a ball", chinese: "接球", image: "https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a?w=200" },
+            { word: "play basketball", chinese: "打篮球", image: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=200" },
+            { word: "play football", chinese: "踢足球", image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=200" },
+            { word: "play the piano", chinese: "弹钢琴", image: "https://images.unsplash.com/photo-1552422535-c45813c61732?w=200" },
+            { word: "fly a plane", chinese: "开飞机", image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=200" },
+        ],
+        sentences: [
+            { english: "Come on, children! Run! Run! Run!", chinese: "来吧，孩子们！跑！跑！跑！" },
+            { english: "Climb! Very good, Jenny!", chinese: "攀爬！很好，珍妮！" },
+            { english: "Now, swim!", chinese: "现在，游泳！" },
+            { english: "I can climb.", chinese: "我会攀爬。" },
+            { english: "I can run.", chinese: "我会跑步。" },
+            { english: "I can walk.", chinese: "我会走路。" },
+            { english: "Can you swim, Jenny?", chinese: "珍妮，你会游泳吗？" },
+            { english: "Yes, I can.", chinese: "是的，我会。" },
+            { english: "Can you jump, Jim?", chinese: "吉姆，你会跳吗？" },
+            { english: "No, I can't.", chinese: "不，我不会。" },
+            { english: "What can you do, Jim?", chinese: "吉姆，你会做什么？" },
+            { english: "I can walk.", chinese: "我会走路。" },
+            { english: "Can she play football?", chinese: "她会踢足球吗？" },
+            { english: "Yes, she can.", chinese: "是的，她会。" },
+            { english: "Can he play basketball?", chinese: "他会打篮球吗？" },
+            { english: "No, he can't.", chinese: "不，他不会。" },
+            { english: "What are you doing?", chinese: "你在做什么？" },
+            { english: "I'm flying my plane.", chinese: "我在开飞机。" },
+            { english: "I'm playing the piano.", chinese: "我在弹钢琴。" },
+            { english: "I'm playing football.", chinese: "我在踢足球。" },
+            { english: "Look! I can jump!", chinese: "看！我会跳！" },
+            { english: "Well done!", chinese: "做得好！" },
+            { english: "Good job!", chinese: "干得好！" },
+            { english: "Try again!", chinese: "再试一次！" },
+            { english: "You can do it!", chinese: "你能做到的！" },
+            { english: "Let's play together.", chinese: "我们一起玩吧。" },
+            { english: "Watch me!", chinese: "看着我！" },
+            { english: "Follow me!", chinese: "跟着我！" },
+            { english: "Be careful!", chinese: "小心！" },
+            { english: "Have fun!", chinese: "玩得开心！" },
+        ],
+        song: "Run, run, run as fast as you can. Jump, jump, jump if you're a man. Swim, swim, swim like a fish. Climb, climb, climb, that's my wish!",
+        story: "The queen of the river: Elephant is king of the animals. I'm looking for a new queen - the queen of the river. I can be queen! I can climb and I can run. You can't be queen of the river, Cat. You don't like water. Frog is queen of the river.",
+        grammar: [
+            { title: "Can 表达能力（肯定）", content: "用 'I can + 动词' 表示'我会/我能做...'", examples: ["I can climb.", "I can walk.", "I can swim."], tip: "'can' 是情态动词，后面跟动词原形，不需要加 'to'。" },
+            { title: "Can 表达能力（询问）", content: "用 'Can you + 动词?' 询问对方是否会做某事", examples: ["Can you swim, Jenny?", "Can you jump, Jim?", "Can she play football?"], tip: "'Can' 提前构成疑问句，回答用 'Yes, I can.' 或 'No, I can't.'" },
+            { title: "Can 表达能力（否定）", content: "用 'I can't + 动词' 表示'我不会/不能做...'", examples: ["No, I can't.", "I can't swim."], tip: "'can't' 是 'cannot' 的缩写，表示'不能/不会'。" },
+            { title: "What can you do?", content: "用 'What can you do?' 询问对方会做什么", examples: ["What can you do, Jim? I can walk."], tip: "这是询问能力的常用句型。" },
+            { title: "现在进行时", content: "用 'be动词 + 动词-ing' 表示正在进行的动作", examples: ["What are you doing? I'm flying my plane."], tip: "'doing' 是 'do' 的现在分词，'flying' 是 'fly' 的现在分词。" }
+        ]
+    },
+    {
+        id: "u8",
+        title: "Unit 8",
+        subtitle: "We're having fun 我们玩得很开心",
+        color: "#FBD000",
+        image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400",
+        storyImage: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
+        vocabulary: [
+            { word: "clean", chinese: "清洁", image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200" },
+            { word: "sleep", chinese: "睡觉", image: "https://images.unsplash.com/photo-1515894203077-9cd36032142f?w=200" },
+            { word: "eat", chinese: "吃", image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200" },
+            { word: "drink", chinese: "喝", image: "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=200" },
+            { word: "take a photo", chinese: "拍照", image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=200" },
+            { word: "beach", chinese: "海滩", image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200" },
+            { word: "flower", chinese: "花", image: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=200" },
+            { word: "sea", chinese: "大海", image: "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=200" },
+            { word: "sun", chinese: "太阳", image: "https://images.unsplash.com/photo-1504386106331-3e4e71712b38?w=200" },
+            { word: "tree", chinese: "树", image: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=200" },
+        ],
+        sentences: [
+            { english: "I'm eating in the living room.", chinese: "我在客厅里吃东西。" },
+            { english: "I'm cleaning the kitchen.", chinese: "我在打扫厨房。" },
+            { english: "I'm taking a photo of Cameron.", chinese: "我在给卡梅隆拍照。" },
+            { english: "I'm drinking orange juice.", chinese: "我在喝橙汁。" },
+            { english: "I'm sleeping in my bed.", chinese: "我在床上睡觉。" },
+            { english: "What's he doing?", chinese: "他在做什么？" },
+            { english: "He's cleaning.", chinese: "他在打扫。" },
+            { english: "What's she doing?", chinese: "她在做什么？" },
+            { english: "She's eating.", chinese: "她在吃东西。" },
+            { english: "What are they doing?", chinese: "他们在做什么？" },
+            { english: "They're swimming in the sea.", chinese: "他们在海里游泳。" },
+            { english: "They're playing on the beach.", chinese: "他们在海滩上玩。" },
+            { english: "Is she walking in the flowers?", chinese: "她在花丛中走吗？" },
+            { english: "No, she isn't.", chinese: "不，她没有。" },
+            { english: "She's sleeping in her bed.", chinese: "她在床上睡觉。" },
+            { english: "Is he drinking milk?", chinese: "他在喝牛奶吗？" },
+            { english: "Yes, he is.", chinese: "是的，他在喝。" },
+            { english: "Are they cleaning the room?", chinese: "他们在打扫房间吗？" },
+            { english: "No, they aren't.", chinese: "不，他们没有。" },
+            { english: "Look at the sun!", chinese: "看太阳！" },
+            { english: "Look at the sea!", chinese: "看大海！" },
+            { english: "It's a beautiful day.", chinese: "今天天气很好。" },
+            { english: "We're having fun.", chinese: "我们玩得很开心。" },
+            { english: "I'm happy.", chinese: "我很高兴。" },
+            { english: "Are you happy?", chinese: "你高兴吗？" },
+            { english: "Yes, I am!", chinese: "是的，我很高兴！" },
+            { english: "Let's go to the beach!", chinese: "我们去海滩吧！" },
+            { english: "Great idea!", chinese: "好主意！" },
+            { english: "I love the beach!", chinese: "我喜欢海滩！" },
+            { english: "The flowers are beautiful.", chinese: "这些花很漂亮。" },
+        ],
+        song: "At the beach, at the beach, we're having fun. In the sun, in the sun, everyone. Swimming, playing, happy day. At the beach we love to stay!",
+        story: "Clean the beach day: Fish girl's walking on the beach. She isn't happy. It's very dirty! Look at all the plastic! Please help me! We can help. I've got an idea. The beach and sea are clean and beautiful now. Thank you, everyone!",
+        grammar: [
+            { title: "现在进行时（第一人称）", content: "用 'I'm + 动词-ing' 表示'我正在做...'", examples: ["I'm eating in the living room.", "I'm cleaning the kitchen.", "I'm drinking orange juice."], tip: "'I'm' 后面跟动词的现在分词形式（-ing）。" },
+            { title: "现在进行时（第三人称单数）", content: "用 'He's/She's + 动词-ing' 表示'他/她正在做...'", examples: ["He's cleaning.", "She's sleeping in her bed."], tip: "男性用 'He's'，女性用 'She's'。" },
+            { title: "现在进行时（复数）", content: "用 'They're + 动词-ing' 表示'他们正在做...'", examples: ["They're swimming in the sea.", "They're playing on the beach."], tip: "多个人或物时用 'They're'。" },
+            { title: "询问正在做什么", content: "用 'What + be动词 + 主语 + doing?' 询问某人正在做什么", examples: ["What's he doing?", "What are they doing?", "Is she walking in the flowers?"], tip: "根据主语选择正确的 be 动词：am/is/are。" },
+            { title: "现在进行时的一般疑问句", content: "把 be 动词提前构成疑问句，回答用 'Yes, 主语 + be动词.' 或 'No, 主语 + be动词 + not.'", examples: ["Is she walking in the flowers? No, she isn't."], tip: "'isn't' 是 'is not' 的缩写，表示否定。" }
+        ]
+    },
+    {
+        id: "u9",
+        title: "Unit 9",
+        subtitle: "Moving to the farm 搬到农场",
+        color: "#E5462C",
+        image: "https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=400",
+        storyImage: "https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=800",
+        vocabulary: [
+            { word: "jacket", chinese: "夹克", image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=200" },
+            { word: "T-shirt", chinese: "T恤", image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200" },
+            { word: "jeans", chinese: "牛仔裤", image: "https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=200" },
+            { word: "socks", chinese: "袜子", image: "https://images.unsplash.com/photo-1582966772680-860e372bb558?w=200" },
+            { word: "shoes", chinese: "鞋子", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200" },
+            { word: "dog", chinese: "狗", image: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=200" },
+            { word: "duck", chinese: "鸭子", image: "https://images.unsplash.com/photo-1552728089-57bdde30beb8?w=200" },
+            { word: "goat", chinese: "山羊", image: "https://images.unsplash.com/photo-1560884853-c4116dfc17bb?w=200" },
+            { word: "horse", chinese: "马", image: "https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=200" },
+            { word: "sheep", chinese: "绵羊", image: "https://images.unsplash.com/photo-1484557985045-edf25e08da73?w=200" },
+        ],
+        sentences: [
+            { english: "Have you got your new blue jeans?", chinese: "你有新的蓝色牛仔裤吗？" },
+            { english: "Yes, Mum. Look! I'm wearing my new jeans.", chinese: "是的，妈妈。看！我穿着我的新牛仔裤。" },
+            { english: "How many T-shirts have you got?", chinese: "你有多少件T恤？" },
+            { english: "I've got my favourite four.", chinese: "我有我最喜欢的四件。" },
+            { english: "Do you want this old teddy?", chinese: "你想要这只旧泰迪熊吗？" },
+            { english: "Yes, I do! I love my teddy.", chinese: "是的，我想要！我爱我的泰迪熊。" },
+            { english: "Let's play with the toy farm.", chinese: "我们来玩玩具农场吧。" },
+            { english: "Let's put the goat in the flowers.", chinese: "我们把山羊放在花丛里吧。" },
+            { english: "Great!", chinese: "太棒了！" },
+            { english: "Let's walk on the beach.", chinese: "我们去海滩散步吧。" },
+            { english: "Ooh, great!", chinese: "哦，太棒了！" },
+            { english: "There's a horse on my farm.", chinese: "我的农场上有一匹马。" },
+            { english: "It's under the tree.", chinese: "它在树下。" },
+            { english: "There's a sheep in the garden.", chinese: "花园里有一只绵羊。" },
+            { english: "There's a duck in the pond.", chinese: "池塘里有一只鸭子。" },
+            { english: "Where's the dog?", chinese: "狗在哪里？" },
+            { english: "It's behind the house.", chinese: "它在房子后面。" },
+            { english: "Look at my new jacket!", chinese: "看我的新夹克！" },
+            { english: "It's beautiful!", chinese: "真漂亮！" },
+            { english: "I like your T-shirt.", chinese: "我喜欢你的T恤。" },
+            { english: "Thank you!", chinese: "谢谢你！" },
+            { english: "Put on your shoes.", chinese: "穿上你的鞋子。" },
+            { english: "Put on your socks.", chinese: "穿上你的袜子。" },
+            { english: "I'm ready!", chinese: "我准备好了！" },
+            { english: "Let's go to the farm!", chinese: "我们去农场吧！" },
+            { english: "I love animals.", chinese: "我喜欢动物。" },
+            { english: "The horse is big.", chinese: "这匹马很大。" },
+            { english: "The goat is small.", chinese: "这只山羊很小。" },
+            { english: "Goodbye, farm!", chinese: "再见，农场！" },
+            { english: "See you next time!", chinese: "下次见！" },
+        ],
+        song: "Old MacDonald had a farm. E-I-E-I-O. And on his farm he had a horse. E-I-E-I-O. With a neigh-neigh here and a neigh-neigh there. Here a neigh, there a neigh, everywhere a neigh-neigh!",
+        story: "Five good friends: A horse, a goat, a sheep, a dog and a duck are good friends. Today the sun is shining and it's hot. Where's Duck? It's hot today. I'm hot! Let's find him. Oh, no! The men have got him. Friends help friends!",
+        grammar: [
+            { title: "wear 的用法", content: "用 'wear' 表示'穿着/戴着'，用 'I'm wearing + 衣物' 表示正在穿", examples: ["I'm wearing my new jeans.", "She's wearing a red jacket."], tip: "'wear' 强调穿着的状态，与 'put on'（穿的动作）不同。" },
+            { title: "Do you want...?", content: "用 'Do you want + 物品?' 询问对方是否想要某物", examples: ["Do you want this old teddy?", "Do you want an apple?"], tip: "回答用 'Yes, I do.' 或 'No, I don't.'" },
+            { title: "Let's + 动词原形", content: "用 'Let's + 动词原形' 提出建议，表示'让我们做...'", examples: ["Let's play with the toy farm.", "Let's put the goat in the flowers.", "Let's walk on the beach."], tip: "'Let's' 后面永远跟动词原形。" },
+            { title: "感叹词 Great!", content: "'Great!' 是感叹词，表示'太棒了！'、'太好了！'", examples: ["Great!", "Ooh, great!"], tip: "这是表达赞同和兴奋的日常用语。" },
+            { title: "复习 There be 句型", content: "用 'There's + 物品 + 地点' 表示某地有某物", examples: ["There's a horse on my farm.", "It's under the tree."], tip: "结合方位介词 on, in, under 来描述物品位置。" }
+        ]
+    }
+];
+
+// ============================================
+// App State
+// ============================================
+let currentUnit = null;
+let currentTab = 'vocabulary';
+let totalScore = parseInt(localStorage.getItem('powerup_score') || '0');
+let practiceState = {
+    questions: [],
+    currentIndex: 0,
+    score: 0,
+    selected: null
+};
+let isRecording = false;
+let recognition = null;
+
+// ============================================
+// Login
+// ============================================
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    
+    if (username === 'pu0' && password === 'emily') {
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        document.getElementById('totalScore').textContent = totalScore;
+        renderUnits();
+    } else {
+        document.getElementById('errorMsg').textContent = '用户名或密码错误';
+    }
+});
+
+function logout() {
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('loginPage').style.display = 'flex';
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('errorMsg').textContent = '';
+}
+
+// ============================================
+// Render Units
+// ============================================
+function renderUnits() {
+    const grid = document.getElementById('unitsGrid');
+    grid.innerHTML = unitsData.map(unit => `
+        <div class="unit-card" onclick="openUnit('${unit.id}')">
+            <div class="unit-header" style="background: ${unit.color}">
+                <h3>${unit.title}</h3>
+                <p>${unit.subtitle}</p>
+            </div>
+            <div class="unit-image">
+                <img src="${unit.image}" alt="${unit.title}">
+            </div>
+            <div class="unit-stats">
+                <span>📚 ${unit.vocabulary.length} 词汇</span>
+                <span>💬 ${unit.sentences.length} 句型</span>
+                ${unit.song ? '<span>🎵 歌曲</span>' : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+// ============================================
+// Open Unit
+// ============================================
+function openUnit(unitId) {
+    currentUnit = unitsData.find(u => u.id === unitId);
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('unitDetail').style.display = 'block';
+    
+    const header = document.getElementById('detailHeader');
+    header.style.background = currentUnit.color;
+    document.getElementById('detailTitle').textContent = currentUnit.title;
+    document.getElementById('detailSubtitle').textContent = currentUnit.subtitle;
+    
+    renderTabs();
+    renderVocabulary();
+    renderSentences();
+    renderSong();
+    renderStory();
+    renderPractice();
+    renderGrammar();
+    
+    switchTab('vocabulary');
+}
+
+function backToHome() {
+    document.getElementById('unitDetail').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    currentUnit = null;
+}
+
+// ============================================
+// Tabs
+// ============================================
+function renderTabs() {
+    const tabs = document.getElementById('tabs');
+    tabs.innerHTML = `
+        <button class="tab active" onclick="switchTab('vocabulary')">📚 词汇</button>
+        <button class="tab" onclick="switchTab('sentences')">💬 句型</button>
+        ${currentUnit.song ? '<button class="tab" onclick="switchTab(\'song\')">🎵 歌曲</button>' : ''}
+        ${currentUnit.story ? '<button class="tab" onclick="switchTab(\'story\')">📖 故事</button>' : ''}
+        <button class="tab" onclick="switchTab('practice')">🎮 练习</button>
+        <button class="tab" onclick="switchTab('grammar')">🎓 家长共学</button>
+    `;
+}
+
+function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    
+    event.target.classList.add('active');
+    document.getElementById(tab + 'Content').classList.add('active');
+}
+
+// ============================================
+// Vocabulary
+// ============================================
+function renderVocabulary() {
+    const content = document.getElementById('vocabContent');
+    content.innerHTML = `
+        <div class="vocab-grid">
+            ${currentUnit.vocabulary.map((item, i) => `
+                <div class="vocab-card" onclick="speak('${item.word}')">
+                    <img src="${item.image}" alt="${item.word}">
+                    <div class="vocab-info">
+                        <h4>${item.word}</h4>
+                        <p>${item.chinese}</p>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+// ============================================
+// Sentences
+// ============================================
+function renderSentences() {
+    const content = document.getElementById('sentenceContent');
+    content.innerHTML = `
+        <div class="sentence-list">
+            ${currentUnit.sentences.map((item, i) => `
+                <div class="sentence-card">
+                    <div class="sentence-text">
+                        <p>${item.english}</p>
+                        <p>${item.chinese}</p>
+                    </div>
+                    <div class="sentence-btns">
+                        <button class="icon-btn" onclick="speak('${item.english.replace(/'/g, "\\'")}')">🔊</button>
+                        <button class="icon-btn" id="recordBtn${i}" onclick="toggleRecord('${item.english.replace(/'/g, "\\'")}', ${i})">🎤</button>
+                    </div>
+                </div>
+                <div id="result${i}"></div>
+            `).join('')}
+        </div>
+    `;
+}
+
+// ============================================
+// Song
+// ============================================
+function renderSong() {
+    const content = document.getElementById('songContent');
+    if (!currentUnit.song) {
+        content.innerHTML = '<p>本单元没有歌曲</p>';
+        return;
+    }
+    content.innerHTML = `
+        <div class="story-card">
+            <div class="story-header">
+                <span style="font-size:40px">🎵</span>
+                <button class="icon-btn" onclick="speak('${currentUnit.song.replace(/'/g, "\\'")}')">🔊</button>
+            </div>
+            <div class="story-text">
+                ${currentUnit.song.split('.').filter(s => s.trim()).map(s => `<p>${s.trim()}.</p>`).join('')}
+            </div>
+        </div>
+    `;
+}
+
+// ============================================
+// Story
+// ============================================
+function renderStory() {
+    const content = document.getElementById('storyContent');
+    if (!currentUnit.story) {
+        content.innerHTML = '<p>本单元没有故事</p>';
+        return;
+    }
+    content.innerHTML = `
+        <div class="story-card">
+            <div class="story-header">
+                <span style="font-size:40px">📖</span>
+                <button class="icon-btn" onclick="speak('${currentUnit.story.replace(/'/g, "\\'")}')">🔊</button>
+            </div>
+            ${currentUnit.storyImage ? `<img src="${currentUnit.storyImage}" class="story-image" alt="Story">` : ''}
+            <div class="story-text">
+                ${currentUnit.story.split('.').filter(s => s.trim()).map(s => `<p>${s.trim()}.</p>`).join('')}
+            </div>
+        </div>
+    `;
+}
+
+// ============================================
+// Practice Game
+// ============================================
+function renderPractice() {
+    const content = document.getElementById('practiceContent');
+    content.innerHTML = `
+        <div class="practice-intro" id="practiceIntro">
+            <div style="font-size:60px">🎮</div>
+            <h3>听力练习</h3>
+            <p>听单词，选择正确的图片。答对可以获得积分！</p>
+            <button class="start-practice-btn" style="background: ${currentUnit.color}" onclick="startPractice()">开始练习</button>
+        </div>
+        <div class="practice-game" id="practiceGame">
+            <div class="practice-header">
+                <button class="result-btn secondary" onclick="exitPractice()">退出</button>
+                <span>🏆 <span id="practiceScore">0</span> 分</span>
+            </div>
+            <div class="practice-progress">
+                <div class="practice-progress-bar" id="progressBar" style="background: ${currentUnit.color}; width: 0%"></div>
+            </div>
+            <div class="practice-question">
+                <p>听单词，选择正确的图片</p>
+                <button class="play-word-btn" id="playWordBtn" style="background: ${currentUnit.color}" onclick="playPracticeWord()">🔊 再听一遍</button>
+            </div>
+            <div class="options-grid" id="optionsGrid"></div>
+            <div class="feedback" id="feedback"></div>
+        </div>
+        <div class="practice-result" id="practiceResult">
+            <div style="font-size:60px">🏆</div>
+            <h3>练习完成！</h3>
+            <p>你真棒！继续加油！</p>
+            <div class="score-display">
+                <p>本次得分</p>
+                <p id="finalScore">0</p>
+            </div>
+            <div class="result-btns">
+                <button class="result-btn secondary" onclick="exitPractice()">返回单元</button>
+                <button class="result-btn primary" style="background: ${currentUnit.color}" onclick="restartPractice()">再玩一次</button>
+            </div>
+        </div>
+    `;
+}
+
+function startPractice() {
+    const vocabWithImages = currentUnit.vocabulary.filter(v => v.image);
+    practiceState.questions = [];
+    
+    for (let i = 0; i < Math.min(5, vocabWithImages.length); i++) {
+        const correct = vocabWithImages[i];
+        const others = vocabWithImages.filter(v => v.word !== correct.word).sort(() => Math.random() - 0.5).slice(0, 3);
+        practiceState.questions.push({
+            correct: correct,
+            options: [correct, ...others].sort(() => Math.random() - 0.5)
+        });
+    }
+    
+    practiceState.currentIndex = 0;
+    practiceState.score = 0;
+    practiceState.selected = null;
+    
+    document.getElementById('practiceIntro').style.display = 'none';
+    document.getElementById('practiceGame').style.display = 'block';
+    document.getElementById('practiceResult').style.display = 'none';
+    
+    showQuestion();
+}
+
+function showQuestion() {
+    const q = practiceState.questions[practiceState.currentIndex];
+    document.getElementById('practiceScore').textContent = practiceState.score;
+    document.getElementById('progressBar').style.width = ((practiceState.currentIndex + 1) / practiceState.questions.length * 100) + '%';
+    document.getElementById('feedback').innerHTML = '';
+    
+    const grid = document.getElementById('optionsGrid');
+    grid.innerHTML = q.options.map((opt, i) => `
+        <button class="option-btn" id="opt${i}" onclick="selectOption(${i})">
+            <img src="${opt.image}" alt="${opt.word}">
+        </button>
+    `).join('');
+    
+    setTimeout(() => speak(q.correct.word), 300);
+}
+
+function playPracticeWord() {
+    const q = practiceState.questions[practiceState.currentIndex];
+    speak(q.correct.word);
+}
+
+function selectOption(index) {
+    if (practiceState.selected !== null) return;
+    
+    practiceState.selected = index;
+    const q = practiceState.questions[practiceState.currentIndex];
+    const correctIndex = q.options.findIndex(o => o.word === q.correct.word);
+    
+    document.getElementById('opt' + index).classList.add(index === correctIndex ? 'correct' : 'wrong');
+    if (index !== correctIndex) {
+        document.getElementById('opt' + correctIndex).classList.add('correct');
+    }
+    
+    const feedback = document.getElementById('feedback');
+    if (index === correctIndex) {
+        practiceState.score += 10;
+        totalScore += 10;
+        localStorage.setItem('powerup_score', totalScore);
+        document.getElementById('totalScore').textContent = totalScore;
+        feedback.innerHTML = `
+            <p style="color: #4caf50; font-weight: bold;">回答正确！+10 分</p>
+            <p>正确答案: ${q.correct.word} (${q.correct.chinese})</p>
+            <button class="next-btn" style="background: ${currentUnit.color}" onclick="nextQuestion()">${practiceState.currentIndex < practiceState.questions.length - 1 ? '下一题' : '完成'}</button>
+        `;
+    } else {
+        feedback.innerHTML = `
+            <p style="color: #f44336; font-weight: bold;">回答错误</p>
+            <p>正确答案: ${q.correct.word} (${q.correct.chinese})</p>
+            <button class="next-btn" style="background: ${currentUnit.color}" onclick="nextQuestion()">${practiceState.currentIndex < practiceState.questions.length - 1 ? '下一题' : '完成'}</button>
+        `;
+    }
+}
+
+function nextQuestion() {
+    practiceState.currentIndex++;
+    practiceState.selected = null;
+    
+    if (practiceState.currentIndex < practiceState.questions.length) {
+        showQuestion();
+    } else {
+        showResult();
+    }
+}
+
+function showResult() {
+    document.getElementById('practiceGame').style.display = 'none';
+    document.getElementById('practiceResult').style.display = 'block';
+    document.getElementById('finalScore').textContent = practiceState.score;
+}
+
+function restartPractice() {
+    startPractice();
+}
+
+function exitPractice() {
+    document.getElementById('practiceGame').style.display = 'none';
+    document.getElementById('practiceResult').style.display = 'none';
+    document.getElementById('practiceIntro').style.display = 'block';
+}
+
+// ============================================
+// Grammar
+// ============================================
+function renderGrammar() {
+    const content = document.getElementById('grammarContent');
+    content.innerHTML = `
+        <div class="grammar-intro">
+            <h3>🎓 家长共学（语法植入）</h3>
+            <p>本章节帮助家长了解本单元的语法重点，在辅导孩子时可以巧妙提醒，让孩子自然习得语法规则。</p>
+        </div>
+        <div class="grammar-list">
+            ${currentUnit.grammar.map((g, i) => `
+                <div class="grammar-card">
+                    <div class="grammar-header">
+                        <div class="grammar-num">${i + 1}</div>
+                        <h4>${g.title}</h4>
+                    </div>
+                    <p class="grammar-content">${g.content}</p>
+                    <div class="grammar-examples">
+                        <p>例句：</p>
+                        ${g.examples.map(e => `<p>${e}</p>`).join('')}
+                    </div>
+                    <div class="grammar-tip">
+                        <span>💡</span>
+                        <p>${g.tip}</p>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+// ============================================
+// Speech
+// ============================================
+function speak(text) {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.85;
+        utterance.pitch = 1;
+        utterance.lang = 'en-US';
+        
+        const voices = window.speechSynthesis.getVoices();
+        const usVoice = voices.find(v => v.lang === 'en-US');
+        if (usVoice) utterance.voice = usVoice;
+        
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+// ============================================
+// Speech Recognition
+// ============================================
+function toggleRecord(text, index) {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert('您的浏览器不支持语音识别功能');
+        return;
+    }
+    
+    const btn = document.getElementById('recordBtn' + index);
+    
+    if (isRecording) {
+        if (recognition) {
+            recognition.stop();
+        }
+        isRecording = false;
+        btn.classList.remove('recording');
+        btn.textContent = '🎤';
+    } else {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        
+        recognition.onstart = () => {
+            isRecording = true;
+            btn.classList.add('recording');
+            btn.textContent = '⏹';
+            document.getElementById('result' + index).innerHTML = '';
+        };
+        
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            const score = compareTexts(text, transcript);
+            showResult(index, score, transcript);
+        };
+        
+        recognition.onerror = () => {
+            isRecording = false;
+            btn.classList.remove('recording');
+            btn.textContent = '🎤';
+        };
+        
+        recognition.onend = () => {
+            isRecording = false;
+            btn.classList.remove('recording');
+            btn.textContent = '🎤';
+        };
+        
+        recognition.start();
+    }
+}
+
+function compareTexts(original, recorded) {
+    const normOriginal = original.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+    const normRecorded = recorded.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+    
+    if (normOriginal === normRecorded) return 100;
+    
+    const origWords = normOriginal.split(' ');
+    const recWords = normRecorded.split(' ');
+    let matches = 0;
+    
+    origWords.forEach(word => {
+        if (recWords.includes(word)) matches++;
+    });
+    
+    return Math.round(matches / origWords.length * 100);
+}
+
+function showResult(index, score, recorded) {
+    const resultDiv = document.getElementById('result' + index);
+    let className, icon, message;
+    
+    if (score >= 80) {
+        className = 'result-good';
+        icon = '✅';
+        message = '太棒了！';
+    } else if (score >= 50) {
+        className = 'result-ok';
+        icon = '⚠️';
+        message = '还不错，继续练习！';
+    } else {
+        className = 'result-bad';
+        icon = '❌';
+        message = '再试一次！';
+    }
+    
+    resultDiv.innerHTML = `
+        <div class="result-box ${className}">
+            <span>${icon}</span>
+            <div>
+                <p><strong>${message}</strong> 相似度: ${score}%</p>
+                <p style="font-size: 12px; margin-top: 5px;">你说: "${recorded}"</p>
+            </div>
+        </div>
+    `;
+}
+    </script>
+</body>
+</html>
